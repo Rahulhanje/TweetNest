@@ -5,6 +5,7 @@ import connectDB from "./db/connect.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
+import postRoutes from "./routes/posts.routes.js";
 
 dotenv.config();
 cloudinary.config({
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 app.listen(process.env.PORT || 3000, () => {
   console.log("Server is running on port 3000");

@@ -3,6 +3,10 @@ import User from "../models/user.model.js";
 import bcrypt from "bcryptjs";  
 import {v2 as cloudinary } from "cloudinary"; 
 
+
+
+
+
 export const getUserProfile = async (req, res) => {
   const { username } = req.params; // Access route parameter
   try {
@@ -165,4 +169,6 @@ export const getSuggestedUsers = async (req, res) => {
       res.status(400).json({ message: `Error in updateUser controller: ${err.message}` });
     }
   };
+  
+
   
