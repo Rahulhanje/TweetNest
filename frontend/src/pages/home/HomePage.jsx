@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import Posts from "../../components/svgs/common/Posts";
+import Posts from "../../components/common/Posts";
 import CreatePost from "./Createpost";
 
 const HomePage = () => {
