@@ -5,19 +5,53 @@ import { FaRegBookmark } from "react-icons/fa6";
 import { FaTrash } from "react-icons/fa";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import LoadingSpinner from "../../components/common/LoadingSpinner";
 
 const Post = ({ post }) => {
+	const queryClient = useQueryClient();
+
 	const [comment, setComment] = useState("");
+	
+	const {data:authUser} = useQuery({queryKey:["authUser"]});
+
 	const postOwner = post.user;
 	const isLiked = false;
-
-	const isMyPost = true;
+    
+	const isMyPost = authUser._id===postOwner._id;
 
 	const formattedDate = "1h";
 
 	const isCommenting = false;
 
-	const handleDeletePost = () => {};
+    const {mutate:deletePostMutation,isError,isPending,error} = useMutation({
+		mutationFn: async({id}) => {
+             try{
+				const res=await fetch(`api/posts/${id}`,{
+					method:"DELETE",
+					headers:{
+						"Content-Type":"application/json"
+					},
+				});
+				const data=await res.json();
+				if (!res.ok) throw new Error(data.error || "Failed to delete post");
+                console.log(data);
+				return data;
+			 }catch(err){
+				console.log(err);
+				 throw new Error(err.message);
+			}
+		},
+		onSuccess:()=>{
+			toast.success("Post deleted successfully");
+			queryClient.invalidateQueries({queryKey:["posts"]});
+		}
+	})
+    
+	const handleDeletePost = () => {
+		deletePostMutation({id:post._id});
+	};
 
 	const handlePostComment = (e) => {
 		e.preventDefault();
@@ -45,9 +79,11 @@ const Post = ({ post }) => {
 						</span>
 						{isMyPost && (
 							<span className='flex justify-end flex-1'>
-								<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />
+								{!isPending &&<FaTrash className='cursor-pointer hover:text-red-500' onClick={handleDeletePost} />}
+						        {isPending && <LoadingSpinner size="sm" />}   
 							</span>
 						)}
+					
 					</div>
 					<div className='flex flex-col gap-3 overflow-hidden'>
 						<span>{post.text}</span>
