@@ -36,7 +36,7 @@ const Post = ({ post }) => {
 				<div className='flex flex-col flex-1'>
 					<div className='flex gap-2 items-center'>
 						<Link to={`/profile/${postOwner.username}`} className='font-bold'>
-							{postOwner.fullName}
+							{postOwner.fullname}
 						</Link>
 						<span className='text-gray-700 flex gap-1 text-sm'>
 							<Link to={`/profile/${postOwner.username}`}>@{postOwner.username}</Link>
@@ -54,7 +54,7 @@ const Post = ({ post }) => {
 						{post.img && (
 							<img
 								src={post.img}
-								className='h-80 object-contain rounded-lg border border-gray-700'
+								className='h-80 object-contain rounded-xl border border-gray-700 py-1 '
 								alt=''
 							/>
 						)}
@@ -65,8 +65,8 @@ const Post = ({ post }) => {
 								className='flex gap-1 items-center cursor-pointer group'
 								onClick={() => document.getElementById("comments_modal" + post._id).showModal()}
 							>
-								<FaRegComment className='w-4 h-4  text-slate-500 group-hover:text-sky-400' />
-								<span className='text-sm text-slate-500 group-hover:text-sky-400'>
+								<FaRegComment className='w-4 h-4 text-slate-500 group-hover:text-sky-400' />
+								<span className='text-sm text-slate-500 group-hover:text-sky-400 '>
 									{post.comments.length}
 								</span>
 							</div>
@@ -91,7 +91,7 @@ const Post = ({ post }) => {
 												</div>
 												<div className='flex flex-col'>
 													<div className='flex items-center gap-1'>
-														<span className='font-bold'>{comment.user.fullName}</span>
+														<span className='font-bold'>{comment.user.fullname}</span>
 														<span className='text-gray-700 text-sm'>
 															@{comment.user.username}
 														</span>

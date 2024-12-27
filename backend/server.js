@@ -7,12 +7,13 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import postRoutes from "./routes/posts.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import cors from "cors";
 
 
 dotenv.config();
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
+  api_key: "783375918234471",
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
@@ -20,7 +21,7 @@ const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cors());
 app.use(cookieParser());
 
 app.use("/api/auth", authRoutes);

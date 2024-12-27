@@ -7,19 +7,19 @@ export const signup = async (req, res) => {
   try {
     const { username, fullname, password, email } = req.body;
     if (!username || !fullname || !password || !email) {
-      throw new Error("Please fill all the fields");
+      return res.status(400).json({ error: "Please fill all the fields" });
     }
     const userEmail = z.string().email();
     if (!userEmail.safeParse(email).success) {
-      throw new Error("Invalid email");
+      return res.status(400).json({ error: "Invalid email" });
     }
     const existinuser = await User.findOne({ username });
     if (existinuser) {
-      throw new Error("Username already exists");
+      return res.status(400).json({ error: "Username already exists" });
     }
     const existingemail = await User.findOne({ email });
     if (existingemail) {
-      throw new Error("Email already exists");
+      return res.status(400).json({ error: "Email already exists" });
     }
     const hashedpassword = await bcrypt.hash(password, 10);
     if (hashedpassword) {
@@ -44,11 +44,11 @@ export const signup = async (req, res) => {
           bio: Createduser.bio,
         });
       } else {
-        throw new Error("User not created");
+        res.status(400).json({ message: "Failed to create account" });
       }
     }
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    return res.status(400).json({ message: err.message });
   }
 };
 
@@ -56,20 +56,18 @@ export const login = async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      throw new Error("Please fill all the fields");
+      return res.status(400).json({ error: "Please fill all the fields" });
     }
     
     const user = await User.findOne({ username });
 
     if (!user) {
-      res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ error: "User not found" });
     }
     const hashedpassword = await bcrypt.compare(password, user.password);
-    console.log(hashedpassword);
-    console.log(user.password);
-    console.log(password);
+
     if (!hashedpassword) {
-      res.status(401).json({ message: "Invalid username or password" });
+      res.status(401).json({ error: "Invalid  password" });
     } else {
       generateTokenAndSetCookie(user._id, res);
       res.status(200).json({
@@ -106,6 +104,7 @@ export const getMe=async(req,res)=>{
       const user=await User.findById(req.user._id).select("-password");
       res.status(200).json(user);
     }catch(err){
-        res.status(400).json({message:`Error in GetMe controller${err.message}`});
+      console.log("Error in getMe controller", error.message);
+      res.status(500).json({ error: "Internal Server Error" });
     }
-  }
+}

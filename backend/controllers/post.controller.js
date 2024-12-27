@@ -238,7 +238,7 @@ export const getFollowingPosts = async (req, res) => {
             .populate({path:"user",select:"-password"})
             .populate({path:"comments.user",select:"-password"});
         if(!feedPosts||feedPosts.length===0){
-            return res.status(404).json({message:"No posts found"});
+            return res.status(404).json({message:"No posts found "});
         }
         res.status(200).json(feedPosts);
     }

@@ -4,7 +4,7 @@ import { protectRoute } from "../middleware/protextRoute.js";
 const router = express.Router();
 
 
-router.get("/getMe",protectRoute,getMe);
+router.get("/getme",protectRoute,getMe);
 router.post("/signup", signup );
 router.post("/login",login);
 router.post("/logout",logout);
