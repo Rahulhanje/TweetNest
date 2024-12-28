@@ -22,13 +22,14 @@ const Post = ({ post }) => {
   const { data: authUser } = useQuery({ queryKey: ["authUser"] });
 
   const postOwner = post.user;
-  const isLiked = false;
+  const isLiked = post.likes.includes(authUser._id);
 
   const isMyPost = authUser._id === postOwner._id;
 
   const formattedDate = "1h";
 
   const isCommenting = false;
+
 
   const {
     mutate: deletePostMutation,
@@ -53,19 +54,28 @@ const Post = ({ post }) => {
         throw new Error(err.message);
       }
     },
-    onSuccess: () => {
+    onSuccess: (updatedLikes) => {
       toast.success("Post deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["posts"] });
+      //this is not best ui experience but it works
+      queryClient.setQueryData(["posts",(oldData)=>{
+        return oldData.map((post)=>{
+          if(post._id===postId){
+            return {...post,likes:updatedLikes}
+          }
+          return post;
+        })
+      }])
     },
   });
 
+
   const {
     mutate: likeMutation,
-    
+    isPending: isLiking,
   } = useMutation({
-    mutationFn: async ({ id }) => {
+    mutationFn: async (id) => {
       try {
-        const res = await fetch(`api/posts/likes/${id}`, {
+        const res = await fetch(`/api/posts/like/${id}`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -73,14 +83,34 @@ const Post = ({ post }) => {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to like post");
-        console.log(data);
-        return data;
+        return data; // This will be the full post object
       } catch (err) {
-        console.log(err);
+        throw new Error(err.message || "Failed to like post");
       }
     },
+    onSuccess: (data) => {
+     
+      
+      // Update only the likes in the local state
+      queryClient.setQueryData(["posts"], (oldData) => {
+        if (!oldData) return []; // Handle case where oldData is undefined
+  
+        return oldData.map((p) => {
+          if (p._id === data._id) {
+            return { ...p, likes: data.likes }; // Update likes count only
+          }
+          return p;
+        });
+      });
+      queryClient.invalidateQueries({ queryKey: ["posts"] }); // Invalidate the posts query
+    },
+    onError: (err) => {
+      console.error("Like error:", err);
+      toast.error(err?.message || "Failed to like post. Please try again.");
+    },
   });
-
+  
+  
   const handleDeletePost = () => {
     deletePostMutation({ id: post._id });
   };
@@ -90,7 +120,8 @@ const Post = ({ post }) => {
   };
 
   const handleLikePost = () => {
-	  likeMutation({id:post._id});
+    if(isLiking) return;
+    likeMutation(post._id);
   };
 
   return (
@@ -204,7 +235,7 @@ const Post = ({ post }) => {
                     />
                     <button className="btn btn-primary rounded-full btn-sm text-white px-4">
                       {isCommenting ? (
-                        <span className="loading loading-spinner loading-md"></span>
+                        <LoadingSpinner size="md" />
                       ) : (
                         "Post"
                       )}
@@ -224,21 +255,27 @@ const Post = ({ post }) => {
               <div
                 className="flex gap-1 items-center group cursor-pointer"
                 onClick={handleLikePost}
+              > {isLiking ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <>
+                  {!isLiked ? (
+                    <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
+                  ) : (
+                    <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500" />
+                  )}
+                </>
+              )}
+              
+              <span
+                className={`text-sm text-slate-500 group-hover:text-pink-500 ${
+                  isLiked ? "text-pink-500" : "text-white"
+                }`}
               >
-                {!isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-slate-500 group-hover:text-pink-500" />
-                )}
-                {isLiked && (
-                  <FaRegHeart className="w-4 h-4 cursor-pointer text-pink-500 " />
-                )}
-
-                <span
-                  className={`text-sm text-slate-500 group-hover:text-pink-500 ${
-                    isLiked ? "text-pink-500" : ""
-                  }`}
-                >
-                  {post.likes.length}
-                </span>
+                {post.likes.length}
+              </span>
+              
+            
               </div>
             </div>
             <div className="flex w-1/3 justify-end gap-2 items-center">
