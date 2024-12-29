@@ -77,7 +77,7 @@ The frontend application is built using **React**, **Vite**, **Tailwind CSS**, a
    ```bash
    https://github.com/Rahulhanje/TweetNest.git
 
-2.Set up the environment variables.
+2. Set up the environment variables.
    ```bash
    MONGO_URI=your-mongo-uri
    PORT=3000
