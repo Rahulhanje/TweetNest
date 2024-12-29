@@ -115,7 +115,8 @@ const ProfilePage = () => {
         }
     });
     
-    console.log(posts);
+   
+
     useEffect(() => {
         userPosts();
     }, [username, userPosts]);
