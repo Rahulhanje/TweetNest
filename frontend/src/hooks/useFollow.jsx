@@ -4,10 +4,10 @@ import toast from "react-hot-toast";
 const useFollow = () => {
     const queryClient = useQueryClient();
 
-    const { mutate: followMutation, isLoading } = useMutation({
+    const followMutation = useMutation({
         mutationFn: async (userId) => {
             const response = await fetch(`/api/users/follow/${userId}`, {
-                method: "get",
+                method: "GET",  // 'GET' method for following (consider changing to 'POST' if necessary)
                 headers: {
                     "Content-Type": "application/json",
                 },
@@ -26,7 +26,7 @@ const useFollow = () => {
         },
     });
 
-    return { followMutation, isLoading };
+    return { followMutation, isLoading: followMutation.isLoading };
 };
 
 export default useFollow;
