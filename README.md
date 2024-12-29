@@ -79,11 +79,18 @@ The frontend application is built using **React**, **Vite**, **Tailwind CSS**, a
 
 2.Set up the environment variables.
    ```bash
-   cp .env.example .env
-   
+   MONGO_URI=your-mongo-uri
+   PORT=3000
+   JWT_SECRET=your-jwt-secret
+   NODE_ENV=your-node-environment
+   CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+   CLOUDINARY_API_KEY=your-cloudinary-api-key
+   CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+
 3. Build the project.
    ```bash
    npm run build
+
 4. Start the server.
    ```bash
    npm run start
