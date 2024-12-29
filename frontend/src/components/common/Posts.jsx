@@ -10,9 +10,9 @@ const Posts = ({ feedType,username,userId }) => {
         return "/api/posts/all";
       case "following":
         return "/api/posts/following";
-      case "posts": // for right panel
+      case "posts": 
         return `/api/posts/user/${username}`;
-      case "likes": // for right panel
+      case "likes": 
         return `/api/posts/likes/${userId}`;
     
       default:

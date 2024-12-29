@@ -5,7 +5,6 @@ import Posts from "../../components/common/Posts";
 import ProfileHeaderSkeleton from "../../components/skeletons/ProfileHeaderSkeleton";
 import EditProfileModal from "./EditProfileModal";
 
-import { POSTS } from "../../utils/db/dummy";
 
 import { FaArrowLeft } from "react-icons/fa6";
 import { IoCalendarOutline } from "react-icons/io5";
@@ -20,7 +19,7 @@ const ProfilePage = () => {
     const [profileImage, setProfileImg] = useState(null);
     const [feedType, setFeedType] = useState("posts");
     const [isFollowingUser, setIsFollowingUser] = useState(false); // Track following state locally
-    
+    const [posts, setPosts] = useState(0);
     const queryClient = useQueryClient();
     
     const coverImgRef = useRef(null);
@@ -28,6 +27,7 @@ const ProfilePage = () => {
     
     const { username } = useParams();
     const { data: authUser } = useQuery({ queryKey: ["authUser"] });
+    
     
     const { followMutation, isLoading: isFollowingLoading } = useFollow();
     
@@ -86,6 +86,41 @@ const ProfilePage = () => {
 	});	
 
 
+    const {
+        mutate: userPosts,
+        isPending: isUserPostsPending,
+        isError: isUserPostsError,
+        error: userPostsError
+    } = useMutation({
+        mutationFn: async () => {
+            try {
+                const res = await fetch(`/api/posts/user/${username}`);
+                if (!res.ok) throw new Error("Failed to fetch user posts");
+                const data = await res.json();
+                return data;
+            } catch (err) {
+                console.log(err);
+                throw new Error(err.message);
+            }
+        },
+        onSuccess: (data) => {
+            const postsLength = data.length; // Assuming `data` is an array of posts
+            setPosts(postsLength);
+            console.log(`Number of posts: ${postsLength}`);
+            toast.success("User posts updated successfully");
+        },
+        onError: (err) => {
+            console.log(err);
+            toast.error(err.message || "Failed to update user posts. Please try again.");
+        }
+    });
+    
+    console.log(posts);
+    useEffect(() => {
+        userPosts();
+    }, [username, userPosts]);
+
+
     const handleImgChange = (e, state) => {
         const file = e.target.files[0];
         if (file) {
@@ -128,7 +163,7 @@ const ProfilePage = () => {
                             </Link>
                             <div className="flex flex-col">
                                 <p className="font-bold text-lg">{user?.fullname}</p>
-                                <span className="text-sm text-slate-500">{POSTS?.length} posts</span>
+                                <span className="text-sm text-slate-500">{posts} posts</span>
                             </div>
                         </div>
                         {/* COVER IMG */}
