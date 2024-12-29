@@ -47,8 +47,10 @@ if(process.env.NODE_ENV === "production"){
   });
 }
 
+server.keepAliveTimeout = 120000; // 120 seconds
+server.headersTimeout = 120000;
 
-app.listen(process.env.PORT || 3000, () => {
+app.listen(process.env.PORT || 10000, '0.0.0.0', () => {
   console.log("Server is running on port 3000");
   connectDB();
 });
