@@ -55,14 +55,17 @@ The frontend application is built using **React**, **Vite**, **Tailwind CSS**, a
 ## Technologies Used
 
 ### Backend
-- **Node.js** with **Express.js** (Inferred)
+- **Node.js** with **Express.js** 
 - **JWT** for authentication
-- **MongoDB** or similar database (assumed)
+- **MongoDB** 
 
 ### Frontend
 - **React** and **Vite** for fast, modern development
 - **Tailwind CSS** for responsive styling
 - **DaisyUI** for UI components
+- **React Router** for client-side routing
+- **React Hook Form** for form validation
+- **React Query** for data fetching and caching
 
 ---
 
@@ -73,9 +76,14 @@ The frontend application is built using **React**, **Vite**, **Tailwind CSS**, a
 1. Clone the repository.
    ```bash
    https://github.com/Rahulhanje/TweetNest.git
-2. Build the project.
+
+2.Set up the environment variables.
+   ```bash
+   cp .env.example .env
+   
+3. Build the project.
    ```bash
    npm run build
-3. Start the server.
+4. Start the server.
    ```bash
    npm run start
