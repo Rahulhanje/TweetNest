@@ -24,17 +24,16 @@ const RightPanel = () => {
     retry: false,
   });
 
-  const { followMutation ,isPending} = useFollow();
+  const { followMutation, isLoading: isFollowLoading } = useFollow();
   
   if (suggestedUsers?.length === 0) {
     return <div className="md:w-64 w-0"></div>;
   }
 
-
   const handleFollow = async (userId) => {
     setPendingUsers((prev) => ({ ...prev, [userId]: true })); // Mark as pending
     try {
-      await followMutation(userId);
+      await followMutation.mutate(userId);
     } catch (err) {
       console.error("Follow action failed:", err.message);
     } finally {
@@ -68,7 +67,7 @@ const RightPanel = () => {
                   <div className="avatar">
                     <div className="w-8 rounded-full">
                       <img
-                        src={user.profileImg || "/avatar-placeholder.png"}
+                        src={user.profileImage || "/avatar-placeholder.png"}
                         alt={`${user.fullname}'s profile`}
                       />
                     </div>
@@ -85,9 +84,9 @@ const RightPanel = () => {
                     className="btn bg-white text-black hover:bg-white hover:opacity-90 rounded-full btn-sm"
                     onClick={(e) => {
                       e.preventDefault();
-                      followMutation(user._id);
+                      handleFollow(user._id);
                     }}
-                    disabled={pendingUsers[user._id]} // Disable if pending
+                    disabled={pendingUsers[user._id]} 
                   >
                     {pendingUsers[user._id] ? <LoadingSpinner size="sm" /> : "Follow"}
                   </button>
