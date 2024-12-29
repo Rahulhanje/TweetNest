@@ -144,37 +144,28 @@ export const likeUnLikePost = async (req, res) => {
             return res.status(404).json({ message: "Post not found" });
         }
 
-        let updatedPost;
+
 
         const isLiked = post.likes.includes(userId);
         if (isLiked) {
             // Unliking the post
-            updatedPost = await Post.findByIdAndUpdate(
-                PostId,
-                { $pull: { likes: userId } },
-                { new: true }
-            );
-            await User.findByIdAndUpdate(post.user, { $pull: { likedPosts: PostId } });
-            return res.status(200).json({ message: "Post Unliked", post: updatedPost });
+            await Post.updateOne({ _id: PostId }, { $pull: { likes: userId } });
+            await User.updateOne({ _id: userId }, { $pull: { likedPosts: PostId } });
+            const updatedPost = await Post.findById(PostId); // Get the updated post
+            res.status(200).json(updatedPost); // Return the updated post
         } else {
             // Liking the post
-            updatedPost = await Post.findByIdAndUpdate(
-                PostId,
-                { $push: { likes: userId } },
-                { new: true }
-            );
-            await User.findByIdAndUpdate(post.user, { $push: { likedPosts: PostId } });
-
-
-            // Add notification for the like
+            post.likes.push(userId);
+            await User.updateOne({ _id: userId }, { $push: { likedPosts: PostId } });
+            const updatedPost = await post.save(); // Save and get the updated post
             await new Notification({
                 from: userId,
                 to: post.user, // Assuming post.user is the owner of the post
                 type: "like",
             }).save();
-
-            return res.status(200).json({ message: "Post Liked", post: updatedPost });
+            res.status(200).json(updatedPost); // Return the updated post
         }
+
     } catch (err) {
         res.status(400).json({
             message: `Error in likeUnLikePost controller: ${err.message}`,
@@ -184,24 +175,24 @@ export const likeUnLikePost = async (req, res) => {
 
 export const getAllPosts = async (req, res) => {
     try {
-      const posts = await Post.find()
-        .sort({ createdAt: -1 })
-        .populate({path:"user",select:"-password"})
-        .populate({path:"comments.user",select:"-password"});
-        
-      if (!posts || posts.length === 0) {
-        return res.status(404).json({ message: "Posts not found" });
-      }
-      
-      return res.status(200).json(posts);
+        const posts = await Post.find()
+            .sort({ createdAt: -1 })
+            .populate({ path: "user", select: "-password" })
+            .populate({ path: "comments.user", select: "-password" });
+
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: "Posts not found" });
+        }
+
+        return res.status(200).json(posts);
     } catch (err) {
-      return res.status(400).json({ 
-        message: `Error in getAllPosts controller: ${err.message}`
-      });
+        return res.status(400).json({
+            message: `Error in getAllPosts controller: ${err.message}`
+        });
     }
-  };
-  
-  export const getLikedPosts = async (req, res) => {
+};
+
+export const getLikedPosts = async (req, res) => {
     try {
         const userId = req.params.id;
         const user = await User.findById(userId);
@@ -226,43 +217,43 @@ export const getAllPosts = async (req, res) => {
 
 
 export const getFollowingPosts = async (req, res) => {
-    try{
+    try {
         const userId = req.user._id;
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const following= user.following;
-        const feedPosts=await Post.find({user:{$in:following}})
-            .populate({path:"user",select:"-password"})
-            .populate({path:"comments.user",select:"-password"});
-        if(!feedPosts||feedPosts.length===0){
-            return res.status(404).json({message:"No posts found "});
+        const following = user.following;
+        const feedPosts = await Post.find({ user: { $in: following } })
+            .populate({ path: "user", select: "-password" })
+            .populate({ path: "comments.user", select: "-password" });
+        if (!feedPosts || feedPosts.length === 0) {
+            return res.status(404).json({ message: "No posts found " });
         }
         res.status(200).json(feedPosts);
     }
-    catch(err){
-        res.status(400).json({message:`Error in getFollowingPosts controller${err.message}`});
+    catch (err) {
+        res.status(400).json({ message: `Error in getFollowingPosts controller${err.message}` });
     }
 }
 
-export const getuserPosts = async (req, res) => { 
-    try{
-       const  {username} = req.params;
-       const  user = await User.findOne({username});
-       if(!user){
-           return res.status(404).json({message:"User not found"});
-       }
-       const posts=await Post.find({user:user._id}).sort({createdAt:-1}).populate({path:"user",select:"-password"}).populate({path:"comments.user",select:"-password"});
-       if(!posts||posts.length===0){
-           return res.status(404).json({message:"No posts found"});
-       }
-       res.status(200).json(posts);
+export const getuserPosts = async (req, res) => {
+    try {
+        const { username } = req.params;
+        const user = await User.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        const posts = await Post.find({ user: user._id }).sort({ createdAt: -1 }).populate({ path: "user", select: "-password" }).populate({ path: "comments.user", select: "-password" });
+        if (!posts || posts.length === 0) {
+            return res.status(404).json({ message: "No posts found" });
+        }
+        res.status(200).json(posts);
 
 
-    }catch(err){
-        res.status(400).json({message:`Error in getuserPosts controller${err.message}`});
+    } catch (err) {
+        res.status(400).json({ message: `Error in getuserPosts controller${err.message}` });
     }
 }
 
