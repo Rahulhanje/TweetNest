@@ -37,7 +37,7 @@ const Posts = ({ feedType,username,userId }) => {
         throw new Error("Failed to fetch posts");
       }
       const data = await res.json();
-      console.log(`[${feedType}] Fetched data:`, data); // Debug log for API response
+      // console.log(`[${feedType}] Fetched data:`, data); // Debug log for API response
       return data;
     },
     enabled: !!feedType, // Ensures the query runs only when feedType is valid
@@ -47,7 +47,7 @@ const Posts = ({ feedType,username,userId }) => {
 
   useEffect(() => {
     refetch(); // Refetch posts on feedType change
-    console.log(feedType);
+    // console.log(feedType);
   }, [feedType, refetch,username,userId]);
 
   return (
