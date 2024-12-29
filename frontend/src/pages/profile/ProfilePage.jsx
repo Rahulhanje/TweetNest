@@ -106,12 +106,12 @@ const ProfilePage = () => {
         onSuccess: (data) => {
             const postsLength = data.length; // Assuming `data` is an array of posts
             setPosts(postsLength);
-            console.log(`Number of posts: ${postsLength}`);
-            toast.success("User posts updated successfully");
+            // console.log(`Number of posts: ${postsLength}`);
+            // toast.success("User posts updated successfully");
         },
         onError: (err) => {
             console.log(err);
-            toast.error(err.message || "Failed to update user posts. Please try again.");
+            // toast.error(err.message || "Failed to update user posts. Please try again.");
         }
     });
     
