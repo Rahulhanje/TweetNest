@@ -3,30 +3,36 @@ import jwt from "jsonwebtoken";
 
 export const protectRoute = async (req, res, next) => {
     try {
-        const token = req.cookies.jwt;
+        const token = req.cookies.jwt; // Fetch the JWT from cookies
 
-        // Check if token is present
+        // 1. Check if the token exists
         if (!token) {
-            return res.status(401).json({ message: "Please login" }); // Use `return`
+            return res.status(401).json({ message: "Unauthorized: Please login" });
         }
 
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if (!decoded) {
-            return res.status(401).json({ message: "Invalid token" }); // Use `return`
+        // 2. Verify the token
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            console.error("JWT verification error:", err.message);
+            return res.status(401).json({ message: "Unauthorized: Invalid token" });
         }
 
-        // Find user in database
+        // 3. Check if the user exists in the database
         const user = await User.findById(decoded._id).select("-password");
         if (!user) {
-            return res.status(401).json({ message: "User not found" }); // Use `return`
+            return res.status(401).json({ message: "Unauthorized: User not found" });
         }
 
-        // Attach user to request
+        // 4. Attach user information to the request object
         req.user = user;
-        next(); // Proceed to next middleware
+
+        // 5. Proceed to the next middleware
+        next();
     } catch (err) {
+        // Handle unexpected errors
         console.error("Error in protectRoute middleware:", err.message);
-        return res.status(500).json({ message: "Server error" }); // Use `return`
+        res.status(500).json({ message: "Internal server error" });
     }
 };
